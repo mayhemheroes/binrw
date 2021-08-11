@@ -1,5 +1,5 @@
 error: too many arguments
- --> $DIR/invalid_if_args.rs:5:23
+ --> $DIR/invalid_if_args.rs:6:23
   |
-5 |     #[br(if(false, 0, 1, 2, 3))]
+6 |     #[br(if(false, 0, 1, 2, 3))]
   |                       ^^^^^^^

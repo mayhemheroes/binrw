@@ -1,15 +1,15 @@
 error: unions are not supported
- --> $DIR/unsupported_type_union.rs:4:1
+ --> $DIR/unsupported_type_union.rs:5:1
   |
-4 | / union Foo {
-5 | |     a: i32,
-6 | | }
+5 | / union Foo {
+6 | |     a: i32,
+7 | | }
   | |_^
 
 error: unions are not supported
-  --> $DIR/unsupported_type_union.rs:9:1
+  --> $DIR/unsupported_type_union.rs:10:1
    |
-9  | / union Bar {
-10 | |     a: i32,
-11 | | }
+10 | / union Bar {
+11 | |     a: i32,
+12 | | }
    | |_^

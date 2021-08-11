@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::BinRead;
 
 // Errors on one field should not prevent the parser from surfacing errors on

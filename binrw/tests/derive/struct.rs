@@ -217,7 +217,7 @@ fn if_alternate() {
 
     let result = Test::read_args(
         &mut Cursor::new(b"\x01"),
-        <Test as BinRead>::Args::builder().try_read(true).finalize(),
+        <Test as BinRead>::Args::<'_>::builder().try_read(true).finalize(),
     )
     .unwrap();
     assert_eq!(result.a, 1);

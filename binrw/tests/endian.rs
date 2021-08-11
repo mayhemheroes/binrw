@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::Endian;
 
 #[test]

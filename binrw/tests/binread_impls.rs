@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::BinRead;
 
 // This is a compile-time regression test to ensure library types allow

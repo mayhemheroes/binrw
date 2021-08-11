@@ -79,6 +79,7 @@
 //! object or explicitly called with a different byte order:
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{Endian, ReadOptions, prelude::*, io::Cursor};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! #[br(little)] // ← this *forces* the struct to be little-endian
@@ -105,6 +106,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! #[br(little)]
@@ -115,6 +117,7 @@
 //! ```
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! #[br(big)]
@@ -144,6 +147,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead, Debug)]
 //! #[br(magic = b"TEST")]
@@ -195,6 +199,7 @@
 //! ### Formatted error
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(Debug, PartialEq)]
 //! struct NotSmallerError(u32, u32);
@@ -216,6 +221,7 @@
 //! ### Custom error
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(Debug, PartialEq)]
 //! struct NotSmallerError(u32, u32);
@@ -271,6 +277,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! #[br(import { ty: u8 })]
@@ -315,6 +322,7 @@
 //! Tuple-styled arguments are passed via `args()` and recieved via `import()`.
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::prelude::*;
 //! #[derive(BinRead)]
 //! #[br(import(val1: u32, val2: &'static str))]
@@ -335,6 +343,7 @@
 //! Named arguments are passed via `args {}` and recieved via `import {}`. (Note the curly braces)
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::prelude::*;
 //! #[derive(BinRead)]
 //! #[br(import { count: u32, other: u16 = 0 })]
@@ -367,6 +376,7 @@
 //! variable being passed into the parser.
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::prelude::*;
 //!
 //! #[derive(BinRead)]
@@ -439,6 +449,7 @@
 //! ## Examples
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{BinRead, io::Cursor};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! struct Test {
@@ -472,6 +483,7 @@
 //! ## Examples
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{BinRead, io::Cursor, derive_binread};
 //! #[derive_binread]
 //! #[derive(Debug, PartialEq)]
@@ -518,6 +530,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, FilePtr32, NullString, io::Cursor};
 //! #[derive(BinRead, Debug)]
 //! #[br(big, magic = b"TEST")]
@@ -554,6 +567,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! struct MyType {
@@ -589,6 +603,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -628,6 +643,7 @@
 //! ### Using `map` on a field
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -641,6 +657,7 @@
 //! ### Using `try_map` on a field
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! # use std::convert::TryInto;
 //! #[derive(BinRead)]
@@ -659,6 +676,7 @@
 //! along with `map` to create a struct out of raw bits.
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! use modular_bitfield::prelude::*;
 //!
@@ -715,6 +733,7 @@
 //! ### Using a custom parser to generate a [`HashMap`](std::collections::HashMap)
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::*, ReadOptions};
 //! # use std::collections::HashMap;
 //! fn custom_parser<R: Read + Seek>(reader: &mut R, ro: &ReadOptions, _: ())
@@ -740,6 +759,7 @@
 //! ### Using `FilePtr::parse` to read a `NullString` without storing a `FilePtr`
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor, FilePtr32, NullString};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -766,6 +786,7 @@
 //! ## Examples
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -799,6 +820,7 @@
 //! ### Using `count` with [`Vec`]
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -816,6 +838,7 @@
 //! ### Using `count` with [`FilePtr`](crate::FilePtr) and `Vec`
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor, FilePtr};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -856,6 +879,7 @@
 //! ## Examples
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor, FilePtr};
 //! #[derive(BinRead, Debug, PartialEq)]
 //! struct OffsetTest {
@@ -902,6 +926,7 @@
 //! ### Using an [`Option`] field with no alternate
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -921,6 +946,7 @@
 //! ### Using a scalar field with an explicit alternate
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -987,6 +1013,7 @@
 //! ## Examples
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{BinRead, NullString, io::SeekFrom};
 //! #[derive(BinRead)]
 //! struct MyType {
@@ -1018,6 +1045,7 @@
 //! ## Examples
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::BinRead;
 //! #[derive(BinRead)]
 //! #[br(big, repr = i16)]

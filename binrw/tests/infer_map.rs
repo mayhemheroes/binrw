@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::{derive_binread, BinReaderExt};
 
 #[derive_binread]

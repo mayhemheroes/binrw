@@ -48,9 +48,9 @@ where
     f
 }
 
-pub fn magic<R, B>(reader: &mut R, expected: B, options: &ReadOptions) -> BinResult<()>
+pub fn magic<'a, R, B>(reader: &mut R, expected: B, options: &ReadOptions) -> BinResult<()>
 where
-    B: BinRead<Args = ()> + core::fmt::Debug + PartialEq + Sync + Send + 'static,
+    B: BinRead<Args<'a> = ()> + core::fmt::Debug + PartialEq + Sync + Send + 'static,
     R: io::Read + io::Seek,
 {
     let pos = reader.stream_position()?;
@@ -65,7 +65,7 @@ where
     }
 }
 
-pub fn try_after_parse<Reader, ValueType, ArgType>(
+pub fn try_after_parse<'arg, Reader, ValueType, ArgType>(
     item: &mut Option<ValueType>,
     reader: &mut Reader,
     ro: &ReadOptions,
@@ -73,7 +73,7 @@ pub fn try_after_parse<Reader, ValueType, ArgType>(
 ) -> BinResult<()>
 where
     Reader: io::Read + io::Seek,
-    ValueType: BinRead<Args = ArgType>,
+    ValueType: BinRead<Args<'arg> = ArgType>,
     ArgType: Copy + 'static,
 {
     if let Some(value) = item.as_mut() {
@@ -91,10 +91,10 @@ where
     a
 }
 
-pub fn map_args_type_hint<Input, Output, MapFn, Args>(_: &MapFn, args: Args) -> Args
+pub fn map_args_type_hint<'arg, Input, Output, MapFn, Args>(_: &MapFn, args: Args) -> Args
 where
     MapFn: FnOnce(Input) -> Output,
-    Input: BinRead<Args = Args>,
+    Input: BinRead<Args<'arg> = Args>,
 {
     args
 }

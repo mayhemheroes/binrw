@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 #[test]
 fn null_wide_strings() {
     use binrw::{io::Cursor, BinReaderExt, NullWideString};

@@ -60,7 +60,7 @@ fn unit_enum_magic_pre_assert() {
     assert_eq!(
         Test::read_args(
             &mut Cursor::new(b"\0\0"),
-            <Test as BinRead>::Args::builder()
+            <Test as BinRead>::Args::<'_>::builder()
                 .allow_zero(true)
                 .forbid_zero(false)
                 .finalize()
@@ -72,7 +72,7 @@ fn unit_enum_magic_pre_assert() {
     assert_eq!(
         Test::read_args(
             &mut Cursor::new(b"\0\0"),
-            <Test as BinRead>::Args::builder()
+            <Test as BinRead>::Args::<'_>::builder()
                 .allow_zero(true)
                 .forbid_zero(true)
                 .finalize()
@@ -84,7 +84,7 @@ fn unit_enum_magic_pre_assert() {
     assert_eq!(
         Test::read_args(
             &mut Cursor::new(b"\0\0"),
-            <Test as BinRead>::Args::builder()
+            <Test as BinRead>::Args::<'_>::builder()
                 .allow_zero(false)
                 .forbid_zero(true)
                 .finalize()
@@ -94,7 +94,7 @@ fn unit_enum_magic_pre_assert() {
     );
     let error = Test::read_args(
         &mut Cursor::new(b"\0\x01"),
-        <Test as BinRead>::Args::builder()
+        <Test as BinRead>::Args::<'_>::builder()
             .allow_zero(false)
             .forbid_zero(true)
             .finalize(),

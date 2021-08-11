@@ -4,7 +4,7 @@ use crate::parser::{
     KeywordToken, TrySet,
 };
 
-use syn::{Ident, Type};
+use syn::{Ident, Type, spanned::Spanned};
 
 #[derive(Debug, Clone)]
 pub(crate) enum Imports {
@@ -20,6 +20,31 @@ impl Default for Imports {
     }
 }
 
+struct LifetimeReplacer;
+
+impl syn::visit_mut::VisitMut for LifetimeReplacer {
+    fn visit_lifetime_mut(&mut self, lifetime: &mut syn::Lifetime) {
+        if lifetime.ident == "_" {
+            lifetime.ident = syn::Ident::new("this", lifetime.span());
+        }
+    }
+
+    fn visit_type_reference_mut(&mut self, reference: &mut syn::TypeReference) {
+        if reference.lifetime.is_none() {
+            reference.lifetime = Some(syn::Lifetime {
+                apostrophe: reference.and_token.span(),
+                ident: syn::Ident::new("this", reference.and_token.span())
+            });
+        }
+    }
+}
+
+fn set_lifetime(mut ty: Type) -> Type {
+    syn::visit_mut::visit_type_mut(&mut LifetimeReplacer, &mut ty);
+
+    ty
+}
+
 impl From<attrs::Import> for Imports {
     fn from(value: attrs::Import) -> Self {
         match &value.list {
@@ -30,7 +55,7 @@ impl From<attrs::Import> for Imports {
                     let (idents, tys) = fields
                         .iter()
                         .cloned()
-                        .map(|field| (field.ident, field.ty))
+                        .map(|field| (field.ident, set_lifetime(field.ty)))
                         .unzip();
                     Self::List(idents, tys)
                 }
@@ -39,7 +64,15 @@ impl From<attrs::Import> for Imports {
                 if fields.is_empty() {
                     Self::None
                 } else {
-                    Self::Named(fields.iter().cloned().collect())
+                    Self::Named(
+                        fields.iter()
+                            .cloned()
+                            .map(|mut field| {
+                                field.ty = set_lifetime(field.ty);
+                                field
+                            })
+                            .collect()
+                    )
                 }
             }
         }
@@ -48,7 +81,7 @@ impl From<attrs::Import> for Imports {
 
 impl From<attrs::ImportRaw> for Imports {
     fn from(value: attrs::ImportRaw) -> Self {
-        Imports::Raw(value.value.ident, value.value.ty.into())
+        Imports::Raw(value.value.ident, Box::new(set_lifetime(value.value.ty)))
     }
 }
 

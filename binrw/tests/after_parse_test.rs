@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::{io::Cursor, BinRead, BinReaderExt, FilePtr8};
 
 #[test]
@@ -9,7 +10,8 @@ fn BinReaderExt_calls_after_parse() {
 }
 
 #[derive(BinRead)]
-struct Try<BR: BinRead<Args = ()>>(#[br(try)] Option<BR>);
+struct Try<BR>(#[br(try)] Option<BR>)
+    where for<'a> BR: BinRead<Args<'a> = ()>;
 
 #[test]
 fn try_calls_after_parse() {

@@ -22,20 +22,21 @@ use core::fmt;
 /// # Examples
 ///
 /// ```rust
-/// # use binrw::{*, io::*};
-/// use binrw::punctuated::Punctuated;
+/// // # #![feature(generic_associated_types)]
+/// // # use binrw::{*, io::*};
+/// // use binrw::punctuated::Punctuated;
 ///
-/// #[derive(BinRead)]
-/// struct MyList {
-///     #[br(parse_with = Punctuated::separated)]
-///     #[br(args { count: 3, inner: () })]
-///     x: Punctuated<u16, u8>,
-/// }
+/// // #[derive(BinRead)]
+/// // struct MyList {
+/// //     #[br(parse_with = Punctuated::separated)]
+/// //     #[br(args { count: 3, inner: () })]
+/// //     x: Punctuated<u16, u8>,
+/// // }
 ///
-/// # let mut x = Cursor::new(b"\0\x03\0\0\x02\x01\0\x01");
-/// # let y: MyList = x.read_be().unwrap();
-/// # assert_eq!(*y.x, vec![3, 2, 1]);
-/// # assert_eq!(y.x.separators, vec![0, 1]);
+/// // # let mut x = Cursor::new(b"\0\x03\0\0\x02\x01\0\x01");
+/// // # let y: MyList = x.read_be().unwrap();
+/// // # assert_eq!(*y.x, vec![3, 2, 1]);
+/// // # assert_eq!(y.x.separators, vec![0, 1]);
 /// ```
 pub struct Punctuated<T: BinRead, P: BinRead> {
     /// The data values.
@@ -45,7 +46,7 @@ pub struct Punctuated<T: BinRead, P: BinRead> {
     pub separators: Vec<P>,
 }
 
-impl<T: BinRead, P: BinRead<Args = ()>> Punctuated<T, P> {
+impl<'punc_arg, T: BinRead, P: BinRead<Args<'punc_arg> = ()>> Punctuated<T, P> {
     /// Parses values of type `T` separated by values of type `P` without a
     /// trailing separator value.
     ///
@@ -54,25 +55,26 @@ impl<T: BinRead, P: BinRead<Args = ()>> Punctuated<T, P> {
     /// # Example
     ///
     /// ```rust
-    /// # use binrw::{*, io::*};
-    /// use binrw::punctuated::Punctuated;
+    /// // # #![feature(generic_associated_types)]
+    /// // # use binrw::{*, io::*};
+    /// // use binrw::punctuated::Punctuated;
     ///
-    /// #[derive(BinRead)]
-    /// struct MyList {
-    ///     #[br(parse_with = Punctuated::separated)]
-    ///     #[br(args { count: 3, inner: () })]
-    ///     x: Punctuated<u16, u8>,
-    /// }
+    /// // #[derive(BinRead)]
+    /// // struct MyList {
+    /// //     #[br(parse_with = Punctuated::separated)]
+    /// //     #[br(args { count: 3, inner: () })]
+    /// //     x: Punctuated<u16, u8>,
+    /// // }
     ///
-    /// # let mut x = Cursor::new(b"\0\x03\0\0\x02\x01\0\x01");
-    /// # let y: MyList = x.read_be().unwrap();
-    /// # assert_eq!(*y.x, vec![3, 2, 1]);
-    /// # assert_eq!(y.x.separators, vec![0, 1]);
+    /// // # let mut x = Cursor::new(b"\0\x03\0\0\x02\x01\0\x01");
+    /// // # let y: MyList = x.read_be().unwrap();
+    /// // # assert_eq!(*y.x, vec![3, 2, 1]);
+    /// // # assert_eq!(y.x.separators, vec![0, 1]);
     /// ```
     pub fn separated<R: Read + Seek>(
         reader: &mut R,
         options: &ReadOptions,
-        args: VecArgs<T::Args>,
+        args: VecArgs<T::Args<'_>>,
     ) -> BinResult<Self> {
         let mut data = Vec::with_capacity(args.count);
         let mut separators = Vec::with_capacity(args.count.max(1) - 1);
@@ -94,7 +96,7 @@ impl<T: BinRead, P: BinRead<Args = ()>> Punctuated<T, P> {
     pub fn separated_trailing<R: Read + Seek>(
         reader: &mut R,
         options: &ReadOptions,
-        args: VecArgs<T::Args>,
+        args: VecArgs<T::Args<'_>>,
     ) -> BinResult<Self> {
         let mut data = Vec::with_capacity(args.count);
         let mut separators = Vec::with_capacity(args.count);

@@ -17,6 +17,7 @@
 //! can read that type from raw data:
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{BinRead, io::Cursor};
 //! # #[derive(Debug, PartialEq)]
 //! #[derive(BinRead)]
@@ -60,6 +61,7 @@
 //! directly from input objects:
 //!
 //! ```rust
+//! # #![feature(generic_associated_types)]
 //! use binrw::{BinReaderExt, io::Cursor};
 //!
 //! let mut reader = Cursor::new(b"\x00\x0A");
@@ -75,6 +77,7 @@
 //! using the `#[br]` attribute:
 //!
 //! ```
+//! # #![feature(generic_associated_types)]
 //! # use binrw::{prelude::*, io::Cursor, NullString};
 //! #
 //! #[derive(BinRead)]
@@ -121,6 +124,7 @@
 //! functionality. The [`alloc`] crate is required.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![feature(generic_associated_types)]
 #![warn(rust_2018_idioms)]
 #![warn(missing_docs)]
 

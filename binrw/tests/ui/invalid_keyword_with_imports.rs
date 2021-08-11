@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use binrw::BinRead;
 
 #[derive(BinRead)]
@@ -13,7 +14,7 @@ fn main() {
     // information could be resolved
     Test::read_args(
         &mut binrw::io::Cursor::new(b"\0\0"),
-        <Test as BinRead>::Args::builder()
+        <Test as BinRead>::Args::<'_>::builder()
             .in_var(1)
             .finalize()
     ).unwrap();

@@ -36,10 +36,10 @@ pub(crate) fn generate_impl(
     quote! {
         #[allow(non_snake_case)]
         impl #impl_generics #TRAIT_NAME for #name #ty_generics #where_clause {
-            type Args = #arg_type;
+            type Args<'this> = #arg_type;
 
             fn read_options<R: #READ_TRAIT + #SEEK_TRAIT>
-                (#READER: &mut R, #OPT: &#OPTIONS, #ARGS: Self::Args)
+                (#READER: &mut R, #OPT: &#OPTIONS, #ARGS: Self::Args<'_>)
                 -> #BIN_RESULT<Self>
             {
                 #read_opt_impl
