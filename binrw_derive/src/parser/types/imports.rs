@@ -4,7 +4,7 @@ use crate::parser::{
     KeywordToken, TrySet,
 };
 
-use syn::{Ident, Type, spanned::Spanned};
+use syn::{spanned::Spanned, Ident, Type};
 
 #[derive(Debug, Clone)]
 pub(crate) enum Imports {
@@ -24,25 +24,23 @@ struct LifetimeReplacer;
 
 impl syn::visit_mut::VisitMut for LifetimeReplacer {
     fn visit_lifetime_mut(&mut self, lifetime: &mut syn::Lifetime) {
+        // if the specified lifetime is '_, desugar it to 'this
         if lifetime.ident == "_" {
             lifetime.ident = syn::Ident::new("this", lifetime.span());
         }
     }
 
     fn visit_type_reference_mut(&mut self, reference: &mut syn::TypeReference) {
-        match reference.lifetime.as_mut() {
-            Some(lifetime) => {
-                if lifetime.ident == "_" {
-                    lifetime.ident = syn::Ident::new("this", lifetime.span());
-                }
-            }
-            None => {
-                reference.lifetime = Some(syn::Lifetime {
-                    apostrophe: reference.and_token.span(),
-                    ident: syn::Ident::new("this", reference.and_token.span())
-                });
-            }
+        // if no lifetime is given, default to 'this
+        if reference.lifetime.is_none() {
+            reference.lifetime = Some(syn::Lifetime {
+                apostrophe: reference.and_token.span(),
+                ident: syn::Ident::new("this", reference.and_token.span()),
+            });
         }
+
+        // visit the rest of the components of the reference
+        syn::visit_mut::visit_type_reference_mut(self, reference);
     }
 }
 
@@ -72,13 +70,14 @@ impl From<attrs::Import> for Imports {
                     Self::None
                 } else {
                     Self::Named(
-                        fields.iter()
+                        fields
+                            .iter()
                             .cloned()
                             .map(|mut field| {
                                 field.ty = set_lifetime(field.ty);
                                 field
                             })
-                            .collect()
+                            .collect(),
                     )
                 }
             }
