@@ -142,7 +142,7 @@ impl<B: BinRead, const N: usize> BinRead for [B; N] {
         &mut self,
         reader: &mut R,
         ro: &ReadOptions,
-        args: B::Args<'_>
+        args: B::Args<'_>,
     ) -> BinResult<()>
     where
         R: Read + Seek,
@@ -206,7 +206,7 @@ impl BinRead for () {
     fn read_options<R: Read + Seek>(
         _: &mut R,
         _: &ReadOptions,
-        _: Self::Args<'_>
+        _: Self::Args<'_>,
     ) -> BinResult<Self> {
         Ok(())
     }
@@ -257,7 +257,7 @@ impl<T: 'static> BinRead for core::marker::PhantomData<T> {
     fn read_options<R: Read + Seek>(
         _: &mut R,
         _: &ReadOptions,
-        _: Self::Args<'_>
+        _: Self::Args<'_>,
     ) -> BinResult<Self> {
         Ok(core::marker::PhantomData)
     }

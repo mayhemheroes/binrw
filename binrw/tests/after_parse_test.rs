@@ -11,7 +11,8 @@ fn BinReaderExt_calls_after_parse() {
 
 #[derive(BinRead)]
 struct Try<BR>(#[br(try)] Option<BR>)
-    where for<'a> BR: BinRead<Args<'a> = ()>;
+where
+    for<'a> BR: BinRead<Args<'a> = ()>;
 
 #[test]
 fn try_calls_after_parse() {

@@ -30,11 +30,18 @@ impl syn::visit_mut::VisitMut for LifetimeReplacer {
     }
 
     fn visit_type_reference_mut(&mut self, reference: &mut syn::TypeReference) {
-        if reference.lifetime.is_none() {
-            reference.lifetime = Some(syn::Lifetime {
-                apostrophe: reference.and_token.span(),
-                ident: syn::Ident::new("this", reference.and_token.span())
-            });
+        match reference.lifetime.as_mut() {
+            Some(lifetime) => {
+                if lifetime.ident == "_" {
+                    lifetime.ident = syn::Ident::new("this", lifetime.span());
+                }
+            }
+            None => {
+                reference.lifetime = Some(syn::Lifetime {
+                    apostrophe: reference.and_token.span(),
+                    ident: syn::Ident::new("this", reference.and_token.span())
+                });
+            }
         }
     }
 }

@@ -64,8 +64,9 @@ pub type FilePtr64<T> = FilePtr<u64, T>;
 pub type FilePtr128<T> = FilePtr<u128, T>;
 
 impl<'ptr_arg, Ptr, BR> BinRead for FilePtr<Ptr, BR>
-    where Ptr: BinRead<Args<'ptr_arg> = ()> + IntoSeekFrom,
-          BR: BinRead,
+where
+    Ptr: BinRead<Args<'ptr_arg> = ()> + IntoSeekFrom,
+    BR: BinRead,
 {
     type Args<'arg> = BR::Args<'arg>;
 
@@ -85,7 +86,12 @@ impl<'ptr_arg, Ptr, BR> BinRead for FilePtr<Ptr, BR>
     }
 
     /// Finalizes the `FilePtr` by seeking to and reading the pointed-to value.
-    fn after_parse<R>(&mut self, reader: &mut R, ro: &ReadOptions, args: BR::Args<'_>) -> BinResult<()>
+    fn after_parse<R>(
+        &mut self,
+        reader: &mut R,
+        ro: &ReadOptions,
+        args: BR::Args<'_>,
+    ) -> BinResult<()>
     where
         R: Read + Seek,
     {
