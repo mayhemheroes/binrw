@@ -31,7 +31,7 @@ pub fn until<Reader, T, CondFn, Arg, Ret>(
     cond: CondFn,
 ) -> impl Fn(&mut Reader, &ReadOptions, Arg) -> BinResult<Ret>
 where
-    T: BinRead<Args = Arg>,
+    T: for<'arg> BinRead<Args<'arg> = Arg>,
     Reader: Read + Seek,
     CondFn: Fn(&T) -> bool,
     Arg: Clone,
@@ -123,7 +123,7 @@ pub fn until_exclusive<Reader, T, CondFn, Arg, Ret>(
     cond: CondFn,
 ) -> impl Fn(&mut Reader, &ReadOptions, Arg) -> BinResult<Ret>
 where
-    T: BinRead<Args = Arg>,
+    T: for<'arg> BinRead<Args<'arg> = Arg>,
     Reader: Read + Seek,
     CondFn: Fn(&T) -> bool,
     Arg: Clone,
@@ -216,12 +216,14 @@ pub fn until_eof<Reader, T, Arg, Ret>(
     args: Arg,
 ) -> BinResult<Ret>
 where
-    T: BinRead<Args = Arg>,
+    T: for<'arg> BinRead<Args<'arg> = Arg>,
     Reader: Read + Seek,
     Arg: Clone,
     Ret: FromIterator<T>,
 {
-    until_eof_with(default_reader)(reader, ro, args)
+    let x = until_eof_with(default_reader);
+
+    x(reader, ro, args)
 }
 
 /// Creates a parser that uses a given function to read items into a collection
@@ -300,7 +302,7 @@ where
 /// ```
 pub fn count<R, T, Arg, Ret>(n: usize) -> impl Fn(&mut R, &ReadOptions, Arg) -> BinResult<Ret>
 where
-    T: BinRead<Args = Arg>,
+    T: for<'arg> BinRead<Args<'arg> = Arg>,
     R: Read + Seek,
     Arg: Clone,
     Ret: FromIterator<T> + 'static,
@@ -375,10 +377,10 @@ where
     }
 }
 
-fn default_reader<R: Read + Seek, Arg: Clone, T: BinRead<Args = Arg>>(
+fn default_reader<'arg, R: Read + Seek, Arg: Clone, T: BinRead<Args<'arg> = Arg>>(
     reader: &mut R,
     options: &ReadOptions,
-    args: T::Args,
+    args: T::Args<'arg>,
 ) -> BinResult<T> {
     let mut value = T::read_options(reader, options, args.clone())?;
     value.after_parse(reader, options, args)?;

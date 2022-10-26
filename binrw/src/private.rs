@@ -52,7 +52,14 @@ where
 
 pub fn magic<R, B>(reader: &mut R, expected: B, options: &ReadOptions) -> BinResult<()>
 where
-    B: BinRead<Args = ()> + core::fmt::Debug + PartialEq + Sync + Send + Clone + Copy + 'static,
+    B: BinRead<Args<'static> = ()>
+        + core::fmt::Debug
+        + PartialEq
+        + Sync
+        + Send
+        + Clone
+        + Copy
+        + 'static,
     R: io::Read + io::Seek,
 {
     let pos = reader.stream_position()?;
@@ -86,7 +93,7 @@ where
 pub fn map_args_type_hint<Input, Output, MapFn, Args>(_: &MapFn, args: Args) -> Args
 where
     MapFn: FnOnce(Input) -> Output,
-    Input: BinRead<Args = Args>,
+    Input: for<'arg> BinRead<Args<'arg> = Args>,
 {
     args
 }

@@ -34,12 +34,12 @@ pub struct NullString(
 );
 
 impl BinRead for NullString {
-    type Args = ();
+    type Args<'arg> = ();
 
     fn read_options<R: Read + Seek>(
         reader: &mut R,
         options: &ReadOptions,
-        _: Self::Args,
+        _: Self::Args<'_>,
     ) -> BinResult<Self> {
         let mut values = vec![];
 
@@ -156,12 +156,12 @@ pub struct NullWideString(
 );
 
 impl BinRead for NullWideString {
-    type Args = ();
+    type Args<'arg> = ();
 
     fn read_options<R: Read + Seek>(
         reader: &mut R,
         options: &ReadOptions,
-        _: Self::Args,
+        _: Self::Args<'_>,
     ) -> BinResult<Self> {
         let mut values = vec![];
 
