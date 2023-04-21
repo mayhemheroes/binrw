@@ -1,0 +1,29 @@
+[package]
+name = "binrw_fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+honggfuzz = "0.5.55"
+#binrw = "0.11.1"
+rand = "0.8.5"
+
+[dependencies.binrw]
+path = "../binrw"
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "seek"
+path = "fuzz_targets/seek.rs"
+
+[[bin]]
+name = "bufreader"
+path = "fuzz_targets/bufreader.rs"

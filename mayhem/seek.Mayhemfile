@@ -1,0 +1,7 @@
+project: binrw
+target: seek
+
+# image: ghcr.io/nottirb/binrw:latest
+
+cmds:
+    - cmd: /seek
