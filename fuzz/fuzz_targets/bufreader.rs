@@ -36,7 +36,7 @@ impl<T: Seek> Seek for Counter<T> {
 fn main() {
     loop {
         fuzz!(|data: &[u8]| {
-            if data.is_empty() {
+            if data.len() < 32 {
                 return;
             }
 
