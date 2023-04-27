@@ -1,7 +1,5 @@
 project: binrw
 target: bufreader
 
-# image: ghcr.io/nottirb/binrw:latest
-
 cmds:
     - cmd: /bufreader
