@@ -2,7 +2,7 @@ use honggfuzz::fuzz;
 use binrw::io::{BufReader, Read, Seek, SeekFrom};
 use std::io::{Cursor};
 use rand::{Rng, SeedableRng};
-use rand::rngs::StdRng;
+use rand_pcg::Pcg64;
 use rand::seq::SliceRandom;
 
 // Counter and Read, Seek implementation
@@ -45,7 +45,7 @@ fn main() {
             for (dst, src) in seed.iter_mut().zip(data.iter()) {
                 *dst = *src;
             }
-            let mut rng = StdRng::from_seed(seed);
+            let mut rng = Pcg64::from_seed(seed);
 
             //let mut rng = rand::thread_rng();
             let buffer_size = rng.gen_range(1..data.len() + 1);

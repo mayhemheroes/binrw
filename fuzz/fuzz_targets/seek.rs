@@ -1,7 +1,7 @@
 use honggfuzz::fuzz;
 use binrw::io::{NoSeek, Read, Seek, SeekFrom, Write};
 use rand::{Rng, SeedableRng};
-use rand::rngs::StdRng;
+use rand_pcg::Pcg64;
 
 fn main() {
     loop {
@@ -15,7 +15,7 @@ fn main() {
             for (dst, src) in seed.iter_mut().zip(data.iter()) {
                 *dst = *src;
             }
-            let mut rng = StdRng::from_seed(seed);
+            let mut rng = Pcg64::from_seed(seed);
 
             // Split the input data into two random parts
             // let mut rng = rand::thread_rng();
