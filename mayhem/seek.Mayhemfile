@@ -1,0 +1,5 @@
+project: binrw
+target: seek
+
+cmds:
+    - cmd: /seek
