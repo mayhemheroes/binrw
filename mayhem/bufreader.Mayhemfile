@@ -1,0 +1,5 @@
+project: binrw
+target: bufreader
+
+cmds:
+    - cmd: /bufreader
