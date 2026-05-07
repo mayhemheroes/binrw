@@ -13,7 +13,7 @@ extern crate alloc;
 // NamedArgs inside binrw because the generated code references a binrw crate,
 // but binrw is not a dependency of binrw so no crate with that name gets
 // automatically added by cargo to the extern prelude.
-extern crate self as binrw;
+pub extern crate self as binrw;
 #[cfg(all(doc, not(feature = "std")))]
 extern crate std;
 

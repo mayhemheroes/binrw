@@ -1,5 +1,5 @@
 # Use the base builder image for Rust projects as the builder stage
-FROM gcr.io/oss-fuzz-base/base-builder-rust as builder
+FROM gcr.io/oss-fuzz-base/base-builder-rust AS builder
 
 # Install build dependencies
 RUN apt-get update && \
