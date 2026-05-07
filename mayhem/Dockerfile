@@ -11,7 +11,7 @@ ADD . /binrw
 WORKDIR /binrw
 
 # Build the fuzz targets
-RUN cd ./fuzz && cargo +nightly hfuzz build
+RUN cd ./fuzz && cargo +nightly-2025-09-05 hfuzz build
 
 # Use Ubuntu 20.04 as the final image
 FROM ubuntu:20.04

@@ -13,7 +13,7 @@ use syn::{
     Error, FnArg, Ident, ItemFn, Pat, Token,
 };
 
-#[cfg_attr(coverage_nightly, coverage(off))]
+#[cfg_attr(coverage_nightly, no_coverage)]
 pub(crate) fn derive_from_attribute<const WRITE: bool>(
     attr: TokenStream,
     input: TokenStream,
@@ -36,17 +36,35 @@ pub(crate) fn derive_from_attribute<const WRITE: bool>(
 }
 
 fn generate<const WRITE: bool>(
-    Options {
-        stream,
-        endian,
-        args_raw,
-    }: Options<WRITE>,
+    Options { stream, endian }: Options<WRITE>,
     mut func: ItemFn,
 ) -> PartialResult<ItemFn, Error> {
     // Since these functions are written to match the binrw API, args must be
     // passed by value even when they are not consumed, so suppress this lint
     func.attrs
         .push(parse_quote!(#[allow(clippy::needless_pass_by_value)]));
+
+    let raw_args_span = func.sig.variadic.take().map(|variadic| variadic.span());
+
+    // Newer versions of nightly Rust require a named pattern for variadic
+    // arguments (e.g. `_: ...` instead of bare `...`). When `_: ...` is used,
+    // syn parses `_:` as a FnArg::Typed in inputs while also setting
+    // sig.variadic. Strip any such "named variadic" typed arg (one whose type
+    // token stream is `...`) so the downstream logic does not see it as an
+    // unexpected extra parameter after raw arguments.
+    if raw_args_span.is_some() {
+        func.sig.inputs = core::mem::take(&mut func.sig.inputs)
+            .into_iter()
+            .filter(|arg| {
+                if let FnArg::Typed(ty) = arg {
+                    if let syn::Type::Verbatim(tokens) = ty.ty.as_ref() {
+                        return tokens.to_string() != "...";
+                    }
+                }
+                true
+            })
+            .collect();
+    }
 
     func.sig.generics.params.push({
         let stream_trait = if WRITE { WRITE_TRAIT } else { READ_TRAIT };
@@ -73,14 +91,13 @@ fn generate<const WRITE: bool>(
     func.sig.inputs.push(parse_quote!(#stream: &mut #STREAM_T));
     func.sig.inputs.push(parse_quote!(#endian: #ENDIAN_ENUM));
 
-    if args_raw {
+    if let Some(raw_args_span) = raw_args_span {
         if let Some(arg) = args.next() {
             func.sig.inputs.push(arg);
         } else {
-            let args_raw_span = func.sig.inputs.span();
             return PartialResult::Partial(
                 func,
-                Error::new(args_raw_span, "missing raw arguments parameter"),
+                Error::new(raw_args_span, "missing raw arguments parameter"),
             );
         }
 
@@ -129,7 +146,6 @@ ident_str! {
 struct Options<const WRITE: bool> {
     stream: Pat,
     endian: Pat,
-    args_raw: bool,
 }
 
 impl<const WRITE: bool> Parse for Options<WRITE> {
@@ -152,7 +168,6 @@ impl<const WRITE: bool> Parse for Options<WRITE> {
 
         let mut stream = None;
         let mut endian = None;
-        let mut args_raw = None;
 
         let mut all_errors = None;
 
@@ -165,7 +180,6 @@ impl<const WRITE: bool> Parse for Options<WRITE> {
                     &mut all_errors,
                 ),
                 Arg::Endian(ident) => try_set("endian", ident, &mut endian, &mut all_errors),
-                Arg::ArgsRaw(ident) => try_set("args_raw", ident, &mut args_raw, &mut all_errors),
             }
         }
 
@@ -175,7 +189,6 @@ impl<const WRITE: bool> Parse for Options<WRITE> {
             Ok(Self {
                 stream: stream.map_or_else(|| parse_quote!(_), |ident| parse_quote!(#ident)),
                 endian: endian.map_or_else(|| parse_quote!(_), |ident| parse_quote!(#ident)),
-                args_raw: args_raw.is_some(),
             })
         }
     }
@@ -184,7 +197,6 @@ impl<const WRITE: bool> Parse for Options<WRITE> {
 enum Arg<const WRITE: bool> {
     Stream(Ident),
     Endian(Ident),
-    ArgsRaw(Ident),
 }
 
 impl<const WRITE: bool> Parse for Arg<WRITE> {
@@ -210,8 +222,6 @@ impl<const WRITE: bool> Parse for Arg<WRITE> {
         } else if kw.peek(kw::endian) {
             let kw = input.parse::<Ident>()?;
             Ok(Arg::Endian(maybe_ident(kw, input)?))
-        } else if kw.peek(kw::args_raw) {
-            input.parse::<Ident>().map(Arg::ArgsRaw)
         } else {
             Err(kw.error())
         }
@@ -223,7 +233,6 @@ mod kw {
     syn::custom_keyword!(reader);
     syn::custom_keyword!(value);
     syn::custom_keyword!(writer);
-    syn::custom_keyword!(args_raw);
 }
 
 #[cfg(test)]
@@ -231,7 +240,7 @@ mod tests {
     use super::*;
     use proc_macro2::TokenStream;
 
-    #[cfg_attr(coverage_nightly, coverage(off))]
+    #[cfg_attr(coverage_nightly, no_coverage)]
     fn try_input<const WRITE: bool>(attr: TokenStream, params: &TokenStream) {
         let options = syn::parse2::<Options<WRITE>>(attr).unwrap();
         let func = syn::parse2::<ItemFn>(quote::quote! {
@@ -244,7 +253,7 @@ mod tests {
     macro_rules! try_error (
         (read $name:ident: $message:literal $opts:tt $params:tt) => {
             #[test]
-            #[cfg_attr(coverage_nightly, coverage(off))]
+            #[cfg_attr(coverage_nightly, no_coverage)]
             #[should_panic(expected = $message)]
             fn $name() {
                 try_input::<false>(quote::quote! $opts, &quote::quote! $params);
@@ -253,7 +262,7 @@ mod tests {
 
         (write $name:ident: $message:literal $opts:tt $params:tt) => {
             #[test]
-            #[cfg_attr(coverage_nightly, coverage(off))]
+            #[cfg_attr(coverage_nightly, no_coverage)]
             #[should_panic(expected = $message)]
             fn $name() {
                 try_input::<true>(quote::quote! $opts, &quote::quote! $params);
@@ -269,15 +278,11 @@ mod tests {
         [reader = invalid] ()
     );
 
-    try_error!(read fn_helper_invalid_args_raw_token: "expected `,`"
-        [args_raw = invalid] ()
-    );
-
-    try_error!(read fn_helper_invalid_reader: "expected one of: `reader`, `endian`, `args_raw`"
+    try_error!(read fn_helper_invalid_reader: "expected `reader` or `endian`"
         [invalid] ()
     );
 
-    try_error!(write fn_helper_invalid_writer: "expected one of: `writer`, `endian`, `args_raw`"
+    try_error!(write fn_helper_invalid_writer: "expected `writer` or `endian`"
         [invalid] ()
     );
 
@@ -293,10 +298,6 @@ mod tests {
         [endian, endian] ()
     );
 
-    try_error!(read fn_helper_conflicting_args_raw: "conflicting `args_raw`"
-        [args_raw, args_raw] ()
-    );
-
     try_error!(read fn_helper_invalid_self: "invalid `self`"
         [] (&self)
     );
@@ -306,18 +307,18 @@ mod tests {
     );
 
     try_error!(read fn_helper_missing_args_reader: "missing raw arguments"
-        [args_raw] ()
+        [] (...)
     );
 
     try_error!(read fn_helper_extra_args_reader: "unexpected extra parameter"
-        [args_raw] (arg0: (), arg1: ())
+        [] (arg0: (), arg1: (), ...)
     );
 
     try_error!(write fn_helper_extra_args_writer: "unexpected extra parameter"
-        [args_raw] (arg0: &(), arg1: (), arg2: ())
+        [] (arg0: &(), arg1: (), arg2: (), ...)
     );
 
     try_error!(write fn_helper_missing_args_writer: "missing raw arguments"
-        [args_raw] (obj: &())
+        [] (obj: &(), ...)
     );
 }
